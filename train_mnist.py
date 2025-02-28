@@ -7,7 +7,7 @@ import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.utils.tensorboard import SummaryWriter
+#from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from mnist_net import MNISTNet
@@ -46,15 +46,15 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser()
   
   parser.add_argument('--exp_name', type=str, default = 'MNIST', help='experiment name')
-  parser.add_argument(...)
-  parser.add_argument(...)
-  parser.add_argument(...)
+  parser.add_argument('--epochs', type=int, default = 5, help='numbers of epochs')
+  parser.add_argument('--batch_size', type=int, default = 32, help='batch size')
+  parser.add_argument('--lr', type=float, default = 0.01, help='learning rate')
 
   args = parser.parse_args()
   exp_name = args.exp_name
-  epochs = ...
-  batch_size = ...
-  lr = ...
+  epochs = args.epochs
+  batch_size = args.batch_size
+  lr = args.lr
 
   # transforms
   transform = transforms.Compose(
@@ -69,12 +69,13 @@ if __name__=='__main__':
   trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
   testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
   
-  net = ...
+  net = MNISTNet()
   # setting net on device(GPU if available, else CPU)
   net = net.to(device)
-  optimizer = optim.SGD(...)
+  optimizer = optim.SGD(params = net.parameters(), lr=lr)
 
-  train(...)
-  test_acc = test(...)
+  train(net, optimizer, trainloader, epochs=epochs)
+  test_acc = test(net, testloader)
   print(f'Test accuracy:{test_acc}')
   torch.save(net.state_dict(), "mnist_net.pth")
+32
