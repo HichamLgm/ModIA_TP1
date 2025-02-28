@@ -7,14 +7,14 @@ import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-#from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from mnist_net import MNISTNet
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def train(net, optimizer, loader, epochs=10):
+def train(net, optimizer, loader, writer, epochs=10):
     criterion = nn.CrossEntropyLoss()
     for epoch in range(epochs):
         running_loss = []
@@ -28,6 +28,7 @@ def train(net, optimizer, loader, epochs=10):
             loss.backward()
             optimizer.step()
             t.set_description(f'training loss: {mean(running_loss)}')
+        writer.add_scalar('training loss', mean(running_loss), epoch)
 
 def test(model, dataloader):
     test_corrects = 0
@@ -46,8 +47,8 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser()
   
   parser.add_argument('--exp_name', type=str, default = 'MNIST', help='experiment name')
-  parser.add_argument('--epochs', type=int, default = 100, help='numbers of epochs')
-  parser.add_argument('--batch_size', type=int, default = 32, help='batch size')
+  parser.add_argument('--epochs', type=int, default = 5, help='numbers of epochs')
+  parser.add_argument('--batch_size', type=int, default = 64, help='batch size')
   parser.add_argument('--lr', type=float, default = 0.01, help='learning rate')
 
   args = parser.parse_args()
@@ -73,8 +74,8 @@ if __name__=='__main__':
   # setting net on device(GPU if available, else CPU)
   net = net.to(device)
   optimizer = optim.SGD(params = net.parameters(), lr=lr)
-
-  train(net, optimizer, trainloader, epochs=epochs)
+  writer = SummaryWriter(f'runs/{exp_name}')
+  train(net, optimizer, trainloader, epochs=epochs, writer=writer)
   test_acc = test(net, testloader)
   print(f'Test accuracy:{test_acc}')
   torch.save(net.state_dict(), "mnist_net.pth")
