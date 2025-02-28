@@ -46,7 +46,7 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser()
   
   parser.add_argument('--exp_name', type=str, default = 'MNIST', help='experiment name')
-  parser.add_argument('--epochs', type=int, default = 5, help='numbers of epochs')
+  parser.add_argument('--epochs', type=int, default = 100, help='numbers of epochs')
   parser.add_argument('--batch_size', type=int, default = 32, help='batch size')
   parser.add_argument('--lr', type=float, default = 0.01, help='learning rate')
 
@@ -78,4 +78,3 @@ if __name__=='__main__':
   test_acc = test(net, testloader)
   print(f'Test accuracy:{test_acc}')
   torch.save(net.state_dict(), "mnist_net.pth")
-32
